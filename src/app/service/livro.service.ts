@@ -9,14 +9,14 @@ import { Item, LivrosResultado } from '../models/interfaces';
 })
 export class LivroService {
 
-  private readonly API = 'https://www.googleapis.com/books/v1/volume'
+  private readonly API = 'https://www.googleapis.com/books/v1/volumes'
   private readonly API_KEY = googleBooksApiKey;
 
   constructor(
     private http: HttpClient
   ) { }
 
-  buscar(valorDigitado: string): Observable<Item[]> {
+  buscar(valorDigitado: string): Observable<LivrosResultado> {
     let params = new HttpParams()
       .append('q', valorDigitado)
 
@@ -24,9 +24,10 @@ export class LivroService {
       params = params.append('key', this.API_KEY);
     }
 
-    return this.http.get<LivrosResultado>(this.API, { params }).pipe(
+    return this.http.get<LivrosResultado>(this.API, { params })
+    /*.pipe(
       tap((retornoAPI) => console.log(retornoAPI)),
-      map(resultado => resultado.items ?? [])
-    );
+      //map(resultado => resultado.items ?? [])
+    );*/
   }
 }

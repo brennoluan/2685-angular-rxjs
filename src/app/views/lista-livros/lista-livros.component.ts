@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { switchMap, map, filter, debounceTime, catchError, throwError } from 'rxjs';
-import { Item, } from 'src/app/models/interfaces';
+import { switchMap, map, filter, debounceTime, catchError, throwError, EMPTY, of } from 'rxjs';
+import { Item, LivrosResultado, } from 'src/app/models/interfaces';
 import { LivroVolumeInfo } from 'src/app/models/livroVolumeInfo';
 import { LivroService } from 'src/app/service/livro.service';
 
@@ -15,19 +15,36 @@ export class ListaLivrosComponent {
 
   campoBusca = new FormControl('');
   mensagemErro = '';
+  livrosResultado: LivrosResultado
 
   constructor(
     private service: LivroService
   ) { }
 
+  totalDeLivros$ = this.campoBusca.valueChanges.pipe(
+    debounceTime(PAUSA),
+    filter(busca => busca.length >= 3),
+    switchMap(busca => this.service.buscar(busca)),
+    map((resultado) => this.livrosResultado = resultado),
+    catchError((erro) => {
+      console.log(erro);
+      return of();
+    })
+  )
+
   livrosEncontrados$ = this.campoBusca.valueChanges.pipe(
     debounceTime(PAUSA),
     filter(busca => busca.length >= 3),
     switchMap(busca => this.service.buscar(busca)),
+    map((resultado) => resultado.items ?? []),
     map((items) => this.livrosResultadoParaLivros(items)),
-    catchError(erro => {
+    catchError((erro) => {
+      /*this.mensagemErro = 'Erro ao buscar livros, recarregue a aplicação';
+      return EMPTY;*/
+
       console.log(erro);
-      return throwError(() => new Error(this.mensagemErro = 'Erro ao buscar livros, tente novamente mais tarde'))
+      return throwError(() => new Error(this.mensagemErro = 'Erro ao buscar livros, recarregue a aplicação'));
+
     })
   );
 
