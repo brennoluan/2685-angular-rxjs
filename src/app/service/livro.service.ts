@@ -25,9 +25,5 @@ export class LivroService {
     }
 
     return this.http.get<LivrosResultado>(this.API, { params })
-    /*.pipe(
-      tap((retornoAPI) => console.log(retornoAPI)),
-      //map(resultado => resultado.items ?? [])
-    );*/
   }
 }

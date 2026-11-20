@@ -36,6 +36,7 @@ export class ListaLivrosComponent {
     debounceTime(PAUSA),
     filter(busca => busca.length >= 3),
     switchMap(busca => this.service.buscar(busca)),
+    map((resultado) => this.livrosResultado = resultado),
     map((resultado) => resultado.items ?? []),
     map((items) => this.livrosResultadoParaLivros(items)),
     catchError((erro) => {
