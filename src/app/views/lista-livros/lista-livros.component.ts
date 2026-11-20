@@ -1,10 +1,11 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Subscription, switchMap, map, filter } from 'rxjs';
+import { Subscription, switchMap, map, filter, debounceTime } from 'rxjs';
 import { Item, Livro } from 'src/app/models/interfaces';
 import { LivroVolumeInfo } from 'src/app/models/livroVolumeInfo';
 import { LivroService } from 'src/app/service/livro.service';
 
+const PAUSA = 3000;
 @Component({
   selector: 'app-lista-livros',
   templateUrl: './lista-livros.component.html',
@@ -19,6 +20,7 @@ export class ListaLivrosComponent {
   ) { }
 
   livrosEncontrados$ = this.campoBusca.valueChanges.pipe(
+    debounceTime(PAUSA),
     filter(busca => busca.length >= 3),
     switchMap(busca => this.service.buscar(busca)),
     map((items) => this.livrosResultadoParaLivros(items)),
