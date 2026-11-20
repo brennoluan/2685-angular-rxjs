@@ -1,7 +1,8 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable, tap } from 'rxjs';
 import { googleBooksApiKey } from '../../environments/api-key';
+import { Item, LivrosResultado } from '../models/interfaces';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,7 @@ export class LivroService {
     private http: HttpClient
   ) { }
 
-  buscar(valorDigitado: string): Observable<any> {
+  buscar(valorDigitado: string): Observable<Item[]> {
     let params = new HttpParams()
       .append('q', valorDigitado)
 
@@ -23,6 +24,9 @@ export class LivroService {
       params = params.append('key', this.API_KEY);
     }
 
-    return this.http.get(this.API, { params });
+    return this.http.get<LivrosResultado>(this.API, { params }).pipe(
+      tap((retornoAPI) => console.log(retornoAPI)),
+      map(resultado => resultado.items ?? [])
+    );
   }
 }
