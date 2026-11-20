@@ -1,7 +1,7 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Subscription, switchMap, map, filter, debounceTime } from 'rxjs';
-import { Item, Livro } from 'src/app/models/interfaces';
+import { switchMap, map, filter, debounceTime, catchError, throwError } from 'rxjs';
+import { Item, } from 'src/app/models/interfaces';
 import { LivroVolumeInfo } from 'src/app/models/livroVolumeInfo';
 import { LivroService } from 'src/app/service/livro.service';
 
@@ -14,6 +14,7 @@ const PAUSA = 3000;
 export class ListaLivrosComponent {
 
   campoBusca = new FormControl('');
+  mensagemErro = '';
 
   constructor(
     private service: LivroService
@@ -24,6 +25,10 @@ export class ListaLivrosComponent {
     filter(busca => busca.length >= 3),
     switchMap(busca => this.service.buscar(busca)),
     map((items) => this.livrosResultadoParaLivros(items)),
+    catchError(erro => {
+      console.log(erro);
+      return throwError(() => new Error(this.mensagemErro = 'Erro ao buscar livros, tente novamente mais tarde'))
+    })
   );
 
   livrosResultadoParaLivros(items: Item[]): LivroVolumeInfo[] {
